@@ -1,0 +1,247 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create two sets of SQS queues and Lambda functions with logging enabled.
+
+Resources:
+  # First SQS Queue
+  FirstQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: FirstQueue
+
+  # First CloudWatch Logs Group
+  FirstLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/FirstLambdaFunction
+      RetentionInDays: 7
+
+  # First Lambda Function
+  FirstLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties: 
+      FunctionName: FirstLambdaFunction
+      Handler: index.handler
+      Role: !GetAtt FirstLambdaExecutionRole.Arn
+      Code: 
+        ZipFile: |
+          import json
+          import boto3
+          import os
+
+          # Uncomment this line if you prefer to use the environment variable
+          # QUEUE_URL = os.environ['QUEUE_URL']
+          QUEUE_URL = "https://sqs.eu-central-1.amazonaws.com/058264391934/SecondQueue"
+          sqs = boto3.client("sqs")
+          bedrock = boto3.client("bedrock-runtime")
+          
+          def handler(event, context):
+              print(f"TYPE OF EVENT: {type(event)}")
+              print("First Lambda received an event: ", event)
+              records = event.get('Records', [])
+                  
+              # Iterate over each record in 'Records'
+              for record in records:
+                  # Extract the 'body' from the current record
+                  body = record.get('body', None)
+                  print("Body: ", body)
+                  user_input = body
+                  prompt = f"""
+                  As an AI, you are tasked with monitoring and detecting any instances of misuse or unethical behavior. Please evaluate the following input provided by a user and determine if there is any misuse of AI or unethical practices involved:
+                  
+                  User Input:
+                  "{user_input}"
+                  
+                  Evaluate the input and provide a detailed explanation of your assessment, including any specific aspects that raise concerns:
+                  
+                  1. Does the input involve using AI to deceive or manipulate individuals?
+                  2. Is the AI being used in a manner that could cause harm, either physically, emotionally, or financially, to any individuals or groups?
+                  3. Are there any privacy or security concerns related to the use of AI in this input?
+                  4. Is the AI being used to generate or distribute misinformation or harmful content?
+                  5. Does the input involve any unauthorized access to or misuse of data?
+                  6. Is the AI being used in a way that violates any laws, regulations, or ethical guidelines?
+                  
+                  Please analyze and explain any potential issues you identify, and suggest how the AI could be used more responsibly in this context.
+                  """
+                  print(prompt)
+                  response = send_message(prompt)
+                  print(response)
+
+          def send_message(message):
+              response = sqs.send_message(
+                  MessageBody=message,
+                  QueueUrl=QUEUE_URL
+              )
+              return response
+              
+          def bedrock_invoke(prompt):
+              model_id = "anthropic.claude-3-sonnet-20240229-v1:0"
+              native_request = {
+                  "anthropic_version": "bedrock-2023-05-31",
+                  "max_tokens": 512,
+                  "temperature": 0.5,
+                  "messages": [
+                      {
+                          "role": "user",
+                          "content": [{"type": "text", "text": prompt}],
+                      }
+                  ],
+              }
+              
+              # Convert the native request to JSON.
+              request = json.dumps(native_request)
+              response = bedrock.invoke_model(modelId=model_id, body=request)
+              model_response = json.loads(response["body"].read())
+              
+              # Extract and print the response text.
+              response_text = model_response["content"][0]["text"]
+              print(response_text)
+                      
+              return response_text
+      Runtime: python3.9
+      Timeout: 30
+      Environment: 
+        Variables:
+          QUEUE_URL: !Ref FirstQueue
+
+  # First Lambda Execution Role
+  FirstLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: FirstLambdaExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: FirstLambdaSQSPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:SendMessage
+                  - sqs:sendmessage
+                Resource: 
+                  - !GetAtt FirstQueue.Arn
+                  - !GetAtt SecondQueue.Arn
+        - PolicyName: FirstLambdaLoggingPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+        - PolicyName: FirstLambdaBedrockPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:ListFoundationModels
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeAgent
+                Resource: "*"              
+
+  # First Lambda SQS Event Source Mapping
+  FirstLambdaSQSEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 10
+      Enabled: True
+      EventSourceArn: !GetAtt FirstQueue.Arn
+      FunctionName: !GetAtt FirstLambdaFunction.Arn
+
+  # Second SQS Queue
+  SecondQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: SecondQueue
+
+  # Second CloudWatch Logs Group
+  SecondLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/SecondLambdaFunction
+      RetentionInDays: 7
+
+  # Second Lambda Function
+  SecondLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties: 
+      FunctionName: SecondLambdaFunction
+      Handler: index.handler
+      Role: !GetAtt SecondLambdaExecutionRole.Arn
+      Code: 
+        ZipFile: |
+          def handler(event, context):
+              print("Second Lambda received an event: ", event)
+      Runtime: python3.9
+      Timeout: 30
+      Environment: 
+        Variables:
+          QUEUE_URL: !Ref SecondQueue
+
+  # Second Lambda Execution Role
+  SecondLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: SecondLambdaExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SecondLambdaSQSPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: !GetAtt SecondQueue.Arn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/SecondLambdaFunction:*
+
+  # Second Lambda SQS Event Source Mapping
+  SecondLambdaSQSEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 10
+      Enabled: True
+      EventSourceArn: !GetAtt SecondQueue.Arn
+      FunctionName: !GetAtt SecondLambdaFunction.Arn
+
+Outputs:
+  FirstQueueURL:
+    Description: The URL of the first SQS queue
+    Value: !Ref FirstQueue
+
+  SecondQueueURL:
+    Description: The URL of the second SQS queue
+    Value: !Ref SecondQueue
+
+  FirstLambdaFunctionARN:
+    Description: The ARN of the first Lambda function
+    Value: !GetAtt FirstLambdaFunction.Arn
+
+  SecondLambdaFunctionARN:
+    Description: The ARN of the second Lambda function
+    Value: !GetAtt SecondLambdaFunction.Arn
