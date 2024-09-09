@@ -16,6 +16,7 @@ Resources:
       RetentionInDays: 7
 
   # First Lambda Function
+  # Developed for checking AI mis-use
   FirstLambdaFunction:
     Type: AWS::Lambda::Function
     Properties: 
@@ -174,6 +175,7 @@ Resources:
       RetentionInDays: 7
 
   # Second Lambda Function
+  # Developed to send the prompt to bedrock once the AI mis-use check is done
   SecondLambdaFunction:
     Type: AWS::Lambda::Function
     Properties: 
@@ -219,6 +221,27 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/SecondLambdaFunction:*
+      
+        - PolicyName: SecondLambdaLoggingPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+        - PolicyName: SecondLambdaBedrockPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:ListFoundationModels
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeAgent
+                Resource: "*"              
 
   # Second Lambda SQS Event Source Mapping
   SecondLambdaSQSEventSourceMapping:
