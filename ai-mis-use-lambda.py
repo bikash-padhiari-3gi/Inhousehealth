@@ -11,15 +11,26 @@ bedrock = boto3.client("bedrock-runtime")
 
 def handler(event, context):
     print(f"TYPE OF EVENT: {type(event)}")
+    records = event.get('Records', [])
+    for record in records:
+        print("-------------")
+        # Extract the 'body' from the current record
+        body = record.get('body', None)
+        print("Body: ", body)
+        user_input = body
     print("First Lambda received an event: ", event)
     prompt = write_prompt(event)
-    # bedrock_response = bedrock_invoke(prompt)
-    if bedrock_response != 'Yes':
-        send_message
+    bedrock_response = bedrock_invoke(prompt)
+    if bedrock_response == 'Yes':
+        message = "AI mis-use detected"
+        send_message()
     else:
+        message = user_input
+        send_message(message)
+        
         return {
             "status":200,
-            "response": "Npo AI mis-use detected. Sending to the second lambda."
+            "response": "No AI mis-use detected. Sending to the second lambda."
             
         }
         
@@ -68,8 +79,8 @@ def write_prompt(event):
         #     print("Failed to send message:", e)
         return(prompt)
 
-def send_message():
-    message = "AI mis-use detected"
+def send_message(message):
+    
     try:
         response = sqs.send_message(
             MessageBody=message,
