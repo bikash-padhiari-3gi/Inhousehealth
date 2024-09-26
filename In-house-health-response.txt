@@ -1,51 +1,53 @@
-Overall Grading: C (Considered)
+Overall Grading: C
+Overall Score: 48%
+
 Section 1: Workplace Health Policy and Promotion
+Grade for this Section: C
+Score for this Section: 40%
+
+Question 1
 Grade: C
-Overall Score: 40%
+Score: 30%
+Response: It was felt that although documented, this strategy is poorly communicated or provided with any guidance. The strategy is regarded by the team as difficult to find and navigate.
+
+Question 2
+Grade: B
+Score: 60%
+Response: Basic data collection is in place.
+
+Question 3
+Grade: C
+Score: 30%
+Response: The team only knows about limited areas that are measured, such as short and long term sickness absence. It is not known what is done with these KPIs.
+
+Question 4
+Grade: C
+Score: 40%
+Response: There was a mixed level of knowledge on what policies exist and where they are located. It was felt there was inconsistency in sharing this information. However, a range of policies do exist.
+
+Question 5
+Grade: B
+Score: 60%
+Response: Yes, however, there could be a wider range of policies on offer that are more inclusive and diverse.
+
+Question 6
+Grade: C
+Score: 40%
+Response: This has been considered, and some form of e-learning is available. However, it is felt that the level of training is not sufficient enough to help managers feel confident in dealing with certain topics.
 
 Strengths:
+Basic data collection and some policies are in place to support employee health and wellbeing.
 
-There is a documented workplace health and wellbeing strategy in place.
-Basic data collection for KPIs like sickness absence is happening.
-A range of policies exist to support employee health and wellbeing.
 Areas for improvement:
+Poor communication of the health and wellbeing strategy, lack of comprehensive training for managers, limited knowledge of KPIs and their utilization.
 
-Poor communication and lack of guidance on the health and wellbeing strategy.
-Limited visibility on how health and wellbeing KPIs are used or integrated into reporting.
-Inconsistent awareness among employees about available policies and support.
-Need for a wider range of inclusive and diverse policies.
-Insufficient training for managers to confidently handle health and wellbeing topics.
 Recommendations:
+Improve the visibility and accessibility of the health and wellbeing strategy. Enhance training programs for managers to build their confidence in addressing health and wellbeing issues. Establish a system for regularly reviewing and communicating relevant KPIs to all stakeholders.
 
-Improve communication and accessibility of the health and wellbeing strategy.
-Establish a clear process for measuring, reporting, and acting on health and wellbeing KPIs.
-Conduct regular awareness campaigns to educate employees about available policies and support.
-Review and expand the range of policies to ensure inclusivity and diversity.
-Implement comprehensive training programs for managers on health and wellbeing topics.
 Section 2: Workplace Culture and Social Responsibility
-Grade: C
-Overall Score: 50%
+Grade for this Section: C
+Score for this Section: 50%
 
-Strengths:
-
-Recognition practices and performance reviews are in place.
-Flexible working arrangements are offered.
-Areas for improvement:
-
-Lack of dedicated time and training for managers to balance business KPIs with employee wellbeing.
-High workload and limited resources leading to work-related stress and burnout risks.
-Insufficient opportunities for purpose, connection, and social activities.
-Learning and development opportunities taking a back seat due to workload and resource constraints.
-Recommendations:
-
-Provide dedicated time and resources for managers to prioritize employee wellbeing alongside business goals.
-Implement workload management strategies to prevent burnout and promote work-life balance.
-Introduce initiatives for social connection, volunteering, and purposeful activities.
-Allocate resources for continuous learning and development opportunities for all employees.
-Section 3: Planning of Workplace Health Promotion
-Grade: C
-Overall Score: 40%
-
-Strengths:
-
-Some absence-related measurements are...
+Question 1
+Grade: B
+Score: 70%
